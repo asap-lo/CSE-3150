@@ -19,7 +19,7 @@ int main()
   set<double> ss;
   ss.insert(5.0);
   ss.insert(3.0);
-  ss.insert(3.0);
+  ss.insert(3.1);
   ss.insert(0.0);
   ss.insert(1.0);
   double sum2 = ECSumList(ss);

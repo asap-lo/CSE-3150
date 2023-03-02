@@ -16,7 +16,7 @@ void ECMultiIntervalsTask::AddInterval(int tmStart, int tmEnd)
     tmEnds.push_back(tmEnd);
 }
 
-bool ECMultiIntervalsTask::IsReadyToRun(int tick) const
+bool ECMultiIntervalsTask::IsReadyToRun(int tick)
 {
     for (int i = 0; i < tmStarts.size(); i++)
     {
@@ -26,4 +26,16 @@ bool ECMultiIntervalsTask::IsReadyToRun(int tick) const
         }
     }
     return false;
+}
+
+bool ECMultiIntervalsTask::IsFinished(int tick)
+{
+    for (int i = 0; i < tmStarts.size(); i++)
+    {
+        if (tick >= tmStarts[i] && tick <= tmEnds[i])
+        {
+            return false;
+        }
+    }
+    return true;
 }

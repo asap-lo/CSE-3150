@@ -24,8 +24,8 @@ public:
     ECMultiIntervalsTask(const std::string &tid);
     // your code here..    
     void AddInterval(int tmStart, int tmEnd);
-    bool IsReadyToRun(int tick) const;
-    bool IsFinished(int tick) const;
+    virtual bool IsReadyToRun(int tick);
+    virtual bool IsFinished(int tick);
     
 
 private:

@@ -40,7 +40,7 @@ static void Test0()
     ASSERT_EQ( t2.GetTotRunTime(), 1);
     ASSERT_EQ( t2.GetTotWaitTime(), 2);
 }
-/*
+
 // FIFO scheduler. Two multi-intervals
 static void Test1()
 {
@@ -66,7 +66,7 @@ static void Test1()
     ASSERT_EQ( t2.GetTotRunTime(), 2);
     ASSERT_EQ( t2.GetTotWaitTime(), 2);
 }
-
+/*
 // One soft interval and one hard interval
 static void Test2()
 {

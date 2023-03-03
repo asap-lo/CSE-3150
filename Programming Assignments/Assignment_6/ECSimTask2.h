@@ -24,13 +24,11 @@ public:
     ECMultiIntervalsTask(const std::string &tid);
     // your code here..    
     void AddInterval(int tmStart, int tmEnd);
-    virtual bool IsReadyToRun(int tick);
-    virtual bool IsFinished(int tick);
+    virtual bool IsReadyToRun(int tick) const;
+    virtual bool IsFinished(int tick) const;
     
-
 private:
-    std::vector<int> tmStarts;
-    std::vector<int> tmEnds;
+    std::vector<std::pair<int, int>> intervals;
 };
 
 //***********************************************************
@@ -42,6 +40,12 @@ public:
     ECHardIntervalTask(const std::string &tid, int tmStart, int tmEnd);
     
     // your code here..    
+    virtual bool IsReadyToRun(int tick) const;
+    virtual bool IsFinished(int tick) const;
+
+private:
+    int tmStart;
+    int tmEnd;
 };
 
 //***********************************************************
@@ -53,6 +57,17 @@ public:
     ECConsecutiveIntervalTask(const std::string &tid, int tmStart, int tmEnd);
     
     // your code here..    
+    virtual void Run(int tick, int duration);
+    virtual void Wait(int tick, int duration);
+    virtual bool IsReadyToRun(int tick) const;
+    virtual bool IsFinished(int tick) const; 
+
+
+private:
+    int tmStart;
+    int tmEnd;
+    int tickPrev;
+    bool waited;
 };
 
 //***********************************************************
@@ -63,8 +78,13 @@ class ECPeriodicTask : public ECSimTask
 public:
     // tickStart: when to start this periodic task; runLen: how long to run this task each time; sleepLen: after it finishes one run, hong long it will sleep
     ECPeriodicTask(const std::string &tid, int tmStart, int runLen, int sleepLen);
-    
+    virtual bool IsReadyToRun(int tick) const;
+    virtual bool IsFinished(int tick) const;
     // your code here..    
+private:
+    int tmStart;
+    int runLen;
+    int sleepLen;
 };
 
 #endif /* ECSimTask2_h */

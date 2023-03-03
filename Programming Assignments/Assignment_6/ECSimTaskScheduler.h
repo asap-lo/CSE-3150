@@ -57,7 +57,7 @@ private:
     // Currently scheduled task
     ECSimTask *pTaskCurr;
 };
-
+//
 //***********************************************************
 // Simple first-come-first-serve or first-in-first-out scheduler
 class ECSimFIFOTaskScheduler : public ECSimTaskScheduler

@@ -66,7 +66,7 @@ static void Test1()
     ASSERT_EQ( t2.GetTotRunTime(), 2);
     ASSERT_EQ( t2.GetTotWaitTime(), 2);
 }
-/*
+
 // One soft interval and one hard interval
 static void Test2()
 {
@@ -213,19 +213,21 @@ static void Test7()
     // t3: wait [5,5], [8,9]
     ASSERT_EQ( t3.GetTotWaitTime(), 3);
 }
-*/
+
 
 // Un-comment out test cases when you get the implementaiton
 
 int main()
 {
-    Test0();
-/*
-    Test1();
-    Test2();
-    Test3();
-    Test4();
-    Test5();
-    Test6();
-    Test7(); */
+    // Test0();
+
+    // Test1();
+
+    // Test2();
+    // Test3();
+    
+    // Test4();
+    // Test5();
+    // Test6();
+    Test7(); 
 }

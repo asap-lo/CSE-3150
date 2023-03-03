@@ -18,7 +18,9 @@ class ECSimLWTFTaskScheduler : public ECSimTaskScheduler
 {
 public:
     ECSimLWTFTaskScheduler();
-    // your code here    
+    // your code here 
+protected:
+    virtual ECSimTask *ChooseTaskToSchedule(const std::vector<ECSimTask *> &listReadyTasks) const;   
 };
 
 //***********************************************************
@@ -27,8 +29,10 @@ class ECSimPriorityScheduler : public ECSimTaskScheduler
 {
 public:
     ECSimPriorityScheduler();
-    
+
     // your code here    
+protected:
+    virtual ECSimTask *ChooseTaskToSchedule(const std::vector<ECSimTask *> &listReadyTasks) const;
 };
 
 //***********************************************************
@@ -38,7 +42,9 @@ class ECSimRoundRobinTaskScheduler : public ECSimTaskScheduler
 public:
     ECSimRoundRobinTaskScheduler();
     
-    // your code here    
+    // your code here   
+protected:
+    virtual ECSimTask *ChooseTaskToSchedule(const std::vector<ECSimTask *> &listReadyTasks) const;
 };
 
 

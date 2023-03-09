@@ -72,12 +72,9 @@ ECSimRoundRobinTaskScheduler :: ECSimRoundRobinTaskScheduler()
 ECSimTask *ECSimRoundRobinTaskScheduler :: ChooseTaskToSchedule(const std::vector<ECSimTask *> &listReadyTasks) const
 {
     // your code here
-    /*ECSimRoundRobinTaskScheduler. Schedule the task that has been scheduled the least
-number of times (count each time tick: if a task is scheduled in two consecutive time
-ticks, count as two).*/
     if (listReadyTasks.size() > 0)
     {
-        int minSchedule = 0;
+        int minSchedule = 1000;
         int minScheduleIndex = 0;
         for (int i = 0; i < listReadyTasks.size(); i++)
         {

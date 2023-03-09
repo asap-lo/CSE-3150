@@ -66,7 +66,7 @@ public:
 private:
     int tmStart;
     int tmEnd;
-    int tickPrev;
+    int tickPrev = 0;
     bool waited;
 };
 

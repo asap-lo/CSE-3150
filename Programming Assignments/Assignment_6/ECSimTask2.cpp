@@ -81,12 +81,7 @@ bool ECConsecutiveIntervalTask::IsReadyToRun(int tick) const
 
 bool ECConsecutiveIntervalTask::IsFinished(int tick) const
 {
-    return tick >= tmEnd-1;
-    if(waited && tick > tickPrev)
-    {
-        return true;
-    }
-    return tick > tmEnd;
+    return (((tickPrev - tick) != 1 && tickPrev > 0) || tick >= tmEnd || tick < tmStart || (tick > tmStart && this->GetTotRunTime() == 0) )|| tick >= tmEnd-1;
 }
 
 ECPeriodicTask::ECPeriodicTask(const std::string &tid, int tmStart, int runLen, int sleepLen) : ECSimTask(tid), tmStart(tmStart), runLen(runLen), sleepLen(sleepLen)

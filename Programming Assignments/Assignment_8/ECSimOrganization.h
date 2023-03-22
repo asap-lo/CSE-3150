@@ -15,9 +15,11 @@ class ECSimEntity
 public:
     ECSimEntity(int id);
     virtual ~ECSimEntity();
-    virtual void Paid(int amount);
-    virtual void Charged(int amount);
-    virtual void GetBalance() const;
+    void Paid(int amount);
+    void Charged(int amount);
+    int GetBalance() const;
+    virtual void Event(ECSimEntity *receiver);
+    int GetId() const;
 
 private:
     int id;
@@ -29,24 +31,23 @@ class ECSimOrganization : public ECSimEntity
 public:
     ECSimOrganization(int id);
     virtual ~ECSimOrganization();
-    virtual void Paid(int amount);
-    virtual void Charged(int amount);
-    virtual void GetBalance() const;
-    void SetBudgetForDay(int budget);
+    void SetBudgetForDay(int budget) { budgetForDay = budget; };
+
+
 private:
-    int id;
-    int balance;
-    int studentCost;
+    ECSimEntity *organization;
+    int budgetForDay;
+    // cost for each student and employee
+    //if either is -1 throw "BAD REQUEST"
     int employeeCost;
-    int budget;
-
-
+    int studentCost;
 };
 
-// ***********************************************************
+
+
 // University bursar office: handling enrollment related matters
 
-class ECSimBursar 
+class ECSimBursar : public ECSimOrganization
 {
 public:
     // each organization has an unique ID
@@ -62,7 +63,7 @@ public:
 // ***********************************************************
 // Human resource (HR)
 
-class ECSimHR 
+class ECSimHR : public ECSimOrganization
 {
 public:
     // each organization has an unique ID
@@ -74,7 +75,7 @@ public:
 // ***********************************************************
 // Dining hall
 
-class ECSimDiningHall 
+class ECSimDiningHall : public ECSimOrganization
 {
 public:
     // each organization has an unique ID
@@ -86,7 +87,7 @@ public:
 // ***********************************************************
 // Rec center
 
-class ECSimRecCenter  
+class ECSimRecCenter : public ECSimOrganization
 {
 public:
     // each organization has an unique ID
@@ -98,7 +99,7 @@ public:
 // ***********************************************************
 // Library
 
-class ECSimLibrary 
+class ECSimLibrary : public ECSimOrganization
 {
 public:
     // each organization has an unique ID

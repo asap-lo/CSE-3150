@@ -12,6 +12,7 @@
 // Your code here
 
 ECCampusSimScript::ECCampusSimScript(){}
+ECCampusSimulator::ECCampusSimulator(){}
 
 void ECCampusSimScript::EndofDay()
 {
@@ -29,15 +30,22 @@ void ECCampusSimScript::AddSimEvt(int idSender, int idReceiver)
     
     for(auto i : simEnts)
     {
-        if(i->GetId() == idSender)
+        if(i.GetId() == idSender)
         {
             for(auto j : simEnts)
             {
-                if(j->GetId() == idReceiver)
+                if(j.GetId() == idReceiver)
                 {
-                    i->Event(j);
+                    i.Event(j);
                 }
             }
         }
     }
 }
+
+void ECCampusSimulator::AddSimItem(ECSimEntity *pe)
+{
+    // Add a new sim item to vector in the script
+    AddSim(pe);
+}
+

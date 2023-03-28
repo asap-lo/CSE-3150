@@ -33,6 +33,7 @@ int ECSimEntity::GetId() const
     return id;
 }
 
+
 //Organization Constructor
 ECSimOrganization::ECSimOrganization(int id) : ECSimEntity(id)
 {
@@ -46,3 +47,35 @@ ECSimOrganization::~ECSimOrganization()
 {
     delete organization;
 }
+
+//Bursar Constructor
+ECSimBursar::ECSimBursar(int bid) : ECSimOrganization(bid)
+{
+    bursar = new ECSimOrganization(bid);
+}
+
+//hr Constructor
+ECSimHR::ECSimHR(int hid) : ECSimOrganization(hid)
+{
+    hr = new ECSimOrganization(hid);
+}
+
+//dining hall Constructor
+ECSimDiningHall::ECSimDiningHall(int did) : ECSimOrganization(did)
+{
+    diningHall = new ECSimOrganization(did);
+}
+
+//rec center Constructor
+ECSimRecCenter::ECSimRecCenter(int rid) : ECSimOrganization(rid)
+{
+    recCenter = new ECSimOrganization(rid);
+}
+
+//library Constructor
+
+ECSimLibrary::ECSimLibrary(int lid) : ECSimOrganization(lid)
+{
+    library = new ECSimOrganization(lid);
+}
+

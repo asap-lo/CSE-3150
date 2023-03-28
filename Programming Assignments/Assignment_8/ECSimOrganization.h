@@ -18,7 +18,7 @@ public:
     void Paid(int amount);
     void Charged(int amount);
     int GetBalance() const;
-    virtual void Event(ECSimEntity *receiver);
+    virtual void Event(ECSimEntity &receiver);
     int GetId() const;
 
 private:
@@ -55,8 +55,11 @@ public:
     
     // set tuition rate; same tuition for everyone; tuition is form the entire simulation period (say semester)
     void SetTuition(int tuitionIn);
-
+    virtual void Event(ECSimEntity &receiver);
     // your code goes here
+private:
+    int tuition;
+    ECSimOrganization *bursar;
     
 };
 
@@ -68,8 +71,11 @@ class ECSimHR : public ECSimOrganization
 public:
     // each organization has an unique ID
     ECSimHR( int tid );
-    
+    virtual void Event(ECSimEntity &receiver);
     // your code goes here
+
+private:
+    ECSimOrganization *hr;
 };
 
 // ***********************************************************
@@ -80,8 +86,10 @@ class ECSimDiningHall : public ECSimOrganization
 public:
     // each organization has an unique ID
     ECSimDiningHall( int tid );
-    
+    virtual void Event(ECSimEntity &receiver);
     // your code goes here
+private:
+    ECSimOrganization *diningHall;
 };
 
 // ***********************************************************
@@ -92,8 +100,11 @@ class ECSimRecCenter : public ECSimOrganization
 public:
     // each organization has an unique ID
     ECSimRecCenter( int tid );
-    
+    virtual void Event(ECSimEntity &receiver);
     // your code goes here
+private:
+    ECSimOrganization *recCenter;
+
 };
 
 // ***********************************************************
@@ -104,8 +115,10 @@ class ECSimLibrary : public ECSimOrganization
 public:
     // each organization has an unique ID
     ECSimLibrary(int bid);
-    
+    virtual void Event(ECSimEntity &receiver);
     // your code goes here
+private:
+    ECSimOrganization *library;
 };
 
 #endif /* ECSimOrganization_h */

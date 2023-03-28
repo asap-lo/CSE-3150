@@ -9,73 +9,56 @@
 
 // Your code goes here
 
-ECSimEntity::ECSimEntity(int id)
+//ECSimEntity constructor
+ECSimEntity::ECSimEntity(int eid)
 {
-    id = id;
+    id = eid;
     balance = 0;
 }
-ECSimEntity::~ECSimEntity(){}
 
-void ECSimEntity::Paid(int amount)
+//ECSimOrganization constructor
+ECSimOrganization::ECSimOrganization(int oid) : ECSimEntity(oid)
 {
-    balance += amount;
+    budget = 0;
 }
-void ECSimEntity::Charged(int amount)
+void ECSimOrganization::SetBudgetForDay(int budgetIn)
 {
-    balance -= amount;
+    budget = budgetIn;
 }
-int ECSimEntity::GetBalance() const
+void ECSimOrganization::Event(ECSimBursar &receiver)
 {
-    return balance;
-}
-int ECSimEntity::GetId() const
-{
-    return id;
+    budget += receiver.budget;
 }
 
-
-//Organization Constructor
-ECSimOrganization::ECSimOrganization(int id) : ECSimEntity(id)
-{
-    organization = new ECSimEntity(id);
-    budgetForDay = 0;
-    employeeCost = 0;
-    studentCost = 0;
-}
-//Organization destructor
-ECSimOrganization::~ECSimOrganization()
-{
-    delete organization;
-}
-
-//Bursar Constructor
+//ECSimBursar constructor'
 ECSimBursar::ECSimBursar(int bid) : ECSimOrganization(bid)
 {
-    bursar = new ECSimOrganization(bid);
+    tuition = 0;
 }
-
-//hr Constructor
-ECSimHR::ECSimHR(int hid) : ECSimOrganization(hid)
+//ECSimBursar event
+void ECSimBursar::Event(ECSimStudent &receiver)
 {
-    hr = new ECSimOrganization(hid);
+    Charged(receiver.Paid(1000));
 }
-
-//dining hall Constructor
-ECSimDiningHall::ECSimDiningHall(int did) : ECSimOrganization(did)
+//ECSimBursar event for all ent
+void ECSimBursar::Event(ECSimEntity &receiver)
 {
-    diningHall = new ECSimOrganization(did);
+    receiver.Charged(Paid(receiver.GetBalance()));
 }
 
-//rec center Constructor
-ECSimRecCenter::ECSimRecCenter(int rid) : ECSimOrganization(rid)
+//ECSimHR constructor
+ECSimHR::ECSimHR(int hid) : ECSimOrganization(hid) {}
+//ECSimHR event from HR to Employee
+void ECSimHR::Event(ECSimEmployee &receiver)
 {
-    recCenter = new ECSimOrganization(rid);
+    Charged(receiver.Paid(1000));
 }
 
-//library Constructor
+//ECSimDiningHall constructor
+ECSimDiningHall::ECSimDiningHall(int did) : ECSimOrganization(did) {}
 
-ECSimLibrary::ECSimLibrary(int lid) : ECSimOrganization(lid)
-{
-    library = new ECSimOrganization(lid);
-}
+//ECSimRecCenter constructor
+ECSimRecCenter::ECSimRecCenter(int rid) : ECSimOrganization(rid) {}
 
+//ECSimLibrary constructor
+ECSimLibrary::ECSimLibrary(int lid) : ECSimOrganization(lid) {}

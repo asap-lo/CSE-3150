@@ -6,36 +6,58 @@
 //
 
 #include "ECSimHuman.h"
-
+#include <string>
+#include "ECSimOrganization.h"
 // Your code goes here
 
 
-//Student Constructor
-ECSimStudent::ECSimStudent(int idStudent) : ECSimEntity(idStudent)
-{
-    human = new ECSimEntity(idStudent);
-}
-//Student destructor
-// ECSimStudent::~ECSimStudent()
-// {
-//     delete human;
-// }
-
-//Employee Constructor
+//ECSimEmployee constructor
 ECSimEmployee::ECSimEmployee(int idEmployee) : ECSimEntity(idEmployee)
 {
-    human = new ECSimEntity(idEmployee);
+    payrate = 0;
 }
-//Employee destructor
-// ECSimEmployee::~ECSimEmployee()
-// {
-//     delete human;
-// }
+//ECSimEmployee set payrate
 void ECSimEmployee::SetPayrate(int rate)
 {
     payrate = rate;
 }
-int ECSimEmployee::GetPayrate() const
+//ECSimEmployee get payrate
+int ECSimEmployee::Getpayrate() const
 {
     return payrate;
+}
+//ECSimEmployee event for employee to HR
+void ECSimEmployee::Event(ECSimHR &receiver)
+{
+    receiver.Charged(payrate);
+    Paid(payrate);
+}
+//ECSimEmployee event for employee to DiningHall
+void ECSimEmployee::Event(ECSimDiningHall &receiver)
+{
+    Charged(receiver.Paid(10));
+}
+//ECSimEmployee event for employee to RecCenter
+void ECSimEmployee::Event(ECSimRecCenter &receiver)
+{
+    Charged(receiver.Paid(20));
+}
+
+//ECSimStudent constructor
+ECSimStudent::ECSimStudent(int idStudent) : ECSimEntity(idStudent)
+{}
+//ECSimStudent event for student to Bursar (pay tuition)
+void ECSimStudent::Event(ECSimBursar &receiver)
+{
+    Charged(receiver.Paid(receiver.GetTuition()));
+}
+//ECSimStudent event for student to DiningHall
+void ECSimStudent::Event(ECSimDiningHall &receiver)
+{
+    Charged(receiver.Paid(5));
+}
+//ECSimStudent event for student to RecCenter
+void ECSimStudent::Event(ECSimRecCenter &receiver)
+{
+    Charged(receiver.Paid(10));
 }

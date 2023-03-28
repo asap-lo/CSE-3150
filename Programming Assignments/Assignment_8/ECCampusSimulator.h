@@ -8,27 +8,6 @@
 #ifndef ECCampusSimulator_h
 #define ECCampusSimulator_h
 #include <vector>
-#include "ECSimOrganization.h"
-/*
-The following is a list of all events which should result in "BAD REQUEST" being thrown:
-
-Sender:            Receiver:
-Bursar              Employee
-HR                   Dining Hall
-HR                   HR
-HR                   Rec Center
-HR                   Student
-Rec Center      Dining Hall
-Rec Center      HR
-Rec Center      Rec Center
-Rec Center      Student
-Rec Center      Employee
-Dining Hall      Student
-Dining Hall      Employee
-Dining Hall      Dining Hall
-Dining Hall      HR
-Dining Hall      Rec Center
-*/
 
 // ***********************************************************
 // Simulation script: a sequence of events to simulate
@@ -41,19 +20,16 @@ public:
     void EndofDay();
     // Add a simulation event. An event is from a sender (with type and id) to a receiver (with type and id). Also evtCode is the code of the type of event between these two kinds of entities. For example, a student (sender) enrolls (event code 0) in univerisity (receiver)
     void AddSimEvt(int idSender, int idReceiver);
-    
-    void AddSim(ECSimEntity *pe);
-    //ECSimEntity GetEnt(int i) { return simEnts[i]; };
-    
-    // Your code here.../
+    void AddToList(ECSimEntity *pe);
+    // Your code here...
 private:
-    std::vector<ECSimEntity> simEnts;
+    std::vector<ECSimEntity *> list;
 };
 
 // ***********************************************************
 // Simulator
 
-class ECCampusSimulator : public ECCampusSimScript
+class ECCampusSimulator
 {
 public:
     ECCampusSimulator();
@@ -62,7 +38,8 @@ public:
     
     // Add a new sim item
     void AddSimItem(ECSimEntity *pe);
-    //uhhhh
+
+    // Your code goes here..
 
 };
 

@@ -10,42 +10,23 @@
 #include "ECSimHuman.h"
 
 // Your code here
-
-ECCampusSimScript::ECCampusSimScript(){}
-ECCampusSimulator::ECCampusSimulator(){}
-
-void ECCampusSimScript::EndofDay()
-{
-    // Do things at the end of the day
-    
-
-}
+//script constructor
+ECCampusSimScript::ECCampusSimScript()
+{}
 
 void ECCampusSimScript::AddSimEvt(int idSender, int idReceiver)
 {
-    // Add a simulation event
-    // An event is from a sender (with type and id) to a receiver (with type and id)
-    // Also evtCode is the code of the type of event between these two kinds of entities
-    // For example, a student (sender) enrolls (event code 0) in univerisity (receiver)
-    
-    for(auto i : simEnts)
+    for(auto i : list)
     {
-        if(i.GetId() == idSender)
+        if(i->GetID() == idSender)
         {
-            for(auto j : simEnts)
+            for(auto j : list)
             {
-                if(j.GetId() == idReceiver)
+                if(j->GetID() == idReceiver)
                 {
-                    i.Event(j);
+                    i->Event(*j);
                 }
             }
         }
     }
 }
-
-void ECCampusSimulator::AddSimItem(ECSimEntity *pe)
-{
-    // Add a new sim item to vector in the script
-    AddSim(pe);
-}
-

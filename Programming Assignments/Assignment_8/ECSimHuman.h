@@ -7,8 +7,9 @@
 
 #ifndef ECSimHuman_h
 #define ECSimHuman_h
-// Including the base class entity
+#include <string>
 #include "ECSimOrganization.h"
+
 //  Place all human related definitions here: ECSimStudent, ECSimEmployee, etc
 
 
@@ -22,14 +23,18 @@ public:
     
     // payrate: amount paid per day. If not set, not getting paid
     void SetPayrate(int rate);  
-    int GetPayrate() const;  
-    
-    // Your code goes here... 
+    int Getpayrate() const;  
+    //Event for employee to HR
+    virtual void Event(ECSimHR &receiver);
+    //Event for employee to DiningHall
+    virtual void Event(ECSimDiningHall &receiver);
+    //Event for employee to RecCenter
+    virtual void Event(ECSimRecCenter &receiver);
+    //Do nothing for employee to remaining entities
+    virtual void Event(ECSimEntity &receiver) {};
     
 private:
-    ECSimEntity *human;
     int payrate;
-
 };
 
 // ***********************************************************
@@ -41,11 +46,16 @@ public:
     // each student must have a distinct id
     ECSimStudent(int idStudent);
     
+    // Event for student to Bursar
+    virtual void Event(ECSimBursar &receiver);
+    // Event for student to DiningHall
+    virtual void Event(ECSimDiningHall &receiver);
+    // Event for student to RecCenter
+    virtual void Event(ECSimRecCenter &receiver);
+    // Event for student to everything else (do nothing)
+    virtual void Event(ECSimEntity &receiver) {};
     // Your code goes here...
-
-private:
-    ECSimEntity *human;
-
+ 
 };
 
 #endif /* ECSimHuman_h */

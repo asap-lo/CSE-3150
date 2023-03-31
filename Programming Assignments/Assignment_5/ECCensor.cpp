@@ -3,4 +3,14 @@
 // For example, suppose the input: [1 -1 2, 5, 2], forbidden list [-1], censored value = 0, then the output is: [0, 1, 2, 2, 5]
 
 // Now define the function ECCensor ...
-
+template <typename C1, typename C2, typename T>
+void ECCensor(const C1& c1, const C2& c2, const T& censoredValue, C1& outputList)
+{
+    for(auto i : c1)
+        for(auto j : i)
+            if(find(c2.begin(), c2.end(), j) != c2.end())
+                outputList.push_back(censoredValue);
+            else
+                outputList.push_back(j);
+    outputList.sort();
+}

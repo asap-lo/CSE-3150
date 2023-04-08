@@ -98,20 +98,38 @@ private:
 };
 
 //***********************************************************
-// should follow the decorator pattern
 // Consecutive task: a task that can early abort
 // This class modifies the passed-in task to have the consecutive property
 
-class ECSimConsecutiveTask 
+class ECSimConsecutiveTask : public ECSimTask
 {
 public:
   ECSimConsecutiveTask(ECSimTask *pTask);
   
   // your code ehre 
+  virtual void Run(int tick, int duration);
+  virtual void Wait(int tick, int duration);
+  virtual bool IsAborted(int tick) const;
+  virtual bool IsFinished(int tick) const;
 
+  // Get the task id
+  virtual std::string GetId() const { return pTask->GetId(); }
+    
+  // Is task ready to run at certain time? tick: the current clock time (in simulation unit)
+  virtual bool IsReadyToRun(int tick) const { return pTask->IsReadyToRun(tick); };
+
+  // How much total time does the task has to wait to get its turn so far?
+  virtual int GetTotWaitTime() const { return pTask->GetTotWaitTime(); }
+
+  // Get total run-time (so far)
+  virtual int GetTotRunTime() const { return pTask->GetTotRunTime(); }
+
+
+  
 private:
   ECSimTask *pTask;
-    
+  int tmFirstRun;
+  bool abort;
 };
 
 //***********************************************************
@@ -124,8 +142,34 @@ public:
   ECSimPeriodicTask(ECSimTask *pTask, int lenSleep);
 
   // your code here
-  bool IsFinished(int tick) const;
+  virtual bool IsFinished(int tick) const;
+  virtual bool IsReadyToRun(int tick) const;
+
+  // Get the task id
+  virtual std::string GetId() const { return pTask->GetId(); }
+
+  // Is task early abort? There can be various reasons for abort: e.g., missed deadline
+  virtual bool IsAborted(int tick) const { return false; }
+
+  // Run the task for some duration (usually 1, but can be more) starting from time tick
+  virtual void Run(int tick, int duration) { pTask->Run(tick, duration); }
+
+  // Wait for some duration (usually 1, but can be more), starting from time tick
+  virtual void Wait(int tick, int duration) { pTask->Wait(tick, duration); }
+
+  // How much total time does the task has to wait to get its turn so far?
+  virtual int GetTotWaitTime() const { return pTask->GetTotWaitTime(); }
+
+  // Get total run-time (so far)
+  virtual int GetTotRunTime() const { return pTask->GetTotRunTime(); }
     
+private:
+  ECSimTask *pTask;
+  int lenSleep;
+
+  // Do I need these vars?
+  int tmStart;
+  int tmEnd;
 };
 
 //***********************************************************

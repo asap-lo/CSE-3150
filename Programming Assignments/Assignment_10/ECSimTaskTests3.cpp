@@ -39,7 +39,7 @@ static void Test0()
     ASSERT_EQ( t2.GetTotWaitTime(), 2);
 }
 /*
-// FIFO scheduler. One consecutive interval and one simple interval (which came earlier)
+// FIFO scheduler. One consecutive interval and one simple interval (which came earlier) */
 static void Test1()
 {
     cout << "****Test1\n";
@@ -64,7 +64,7 @@ static void Test1()
     ASSERT_EQ( t2.GetTotRunTime(), 3);
     ASSERT_EQ( t2.GetTotWaitTime(), 0);
 }
-
+/*
 // A periodic interval and a regular intervaal (which arrives earlier)
 static void Test2()
 {
@@ -258,12 +258,12 @@ static void Test7()
 
 int main()
 {
-    Test0();
-/*    Test1();
-    Test2();
-    Test3();
-    Test4();
-    Test5();
-    Test6();
-    Test7(); */
+    // Test0();
+    Test1();
+    // Test2();
+    // Test3();
+    // Test4();
+    // Test5();
+    // Test6();
+    // Test7(); 
 }

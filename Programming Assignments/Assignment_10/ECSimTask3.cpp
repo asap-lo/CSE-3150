@@ -37,18 +37,55 @@ bool ECSimIntervalTask :: IsFinished(int tick) const
 
 ECSimConsecutiveTask :: ECSimConsecutiveTask(ECSimTask *pTask) 
 {
+    this->pTask = pTask;
+    tmFirstRun = -1;
+    abort = false;
 }
 
 // your code here
+
+void ECSimConsecutiveTask :: Run(int tick, int duration)
+{
+    pTask->Run(tick, duration);
+    if ( tmFirstRun < 0 )
+    {
+        tmFirstRun = tick;
+    }
+}
+
+void ECSimConsecutiveTask :: Wait(int tick, int duration)
+{
+    pTask->Wait(tick, duration);
+
+    if(tmFirstRun >= 0)
+    {
+        abort = true;
+    }
+}
+
+bool ECSimConsecutiveTask :: IsAborted(int tick) const
+{
+    return abort;
+}
+
+bool ECSimConsecutiveTask :: IsFinished(int tick) const
+{
+    return pTask->IsFinished(tick) || abort;
+}
+
 
 //***********************************************************
 // Periodic task: a task that can early abort
 
-ECSimPeriodicTask :: ECSimPeriodicTask(ECSimTask *pTask, int ls) 
+ECSimPeriodicTask :: ECSimPeriodicTask(ECSimTask *pTask, int lenSleep) 
 {
+    this->pTask = pTask;
+    this->lenSleep = lenSleep;
 }
 
 // your code here
+
+
 
 //***********************************************************
 // Task with a deadline to start: a task that must start by some time; otherwise terminate

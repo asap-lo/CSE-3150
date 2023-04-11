@@ -136,7 +136,7 @@ private:
 // Periodic task: a task that can early abort
 // This class modifies the passed-in task to have the early abort property
 
-class ECSimPeriodicTask 
+class ECSimPeriodicTask : public ECSimTask
 {
 public:
   ECSimPeriodicTask(ECSimTask *pTask, int lenSleep);

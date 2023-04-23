@@ -81,6 +81,7 @@ ECSimPeriodicTask :: ECSimPeriodicTask(ECSimTask *pTask, int lenSleep)
 {
     this->pTask = pTask;
     this->lenSleep = lenSleep;
+
 }
 
 // your code here
@@ -92,7 +93,43 @@ ECSimPeriodicTask :: ECSimPeriodicTask(ECSimTask *pTask, int lenSleep)
 
 ECSimStartDeadlineTask :: ECSimStartDeadlineTask(ECSimTask *pTask, int tmStartDeadlineIn) 
 {
+    this->pTask = pTask;
+    deadline = tmStartDeadlineIn;
+    start = -1;
+    abort = false;
+
 }
+
+bool ECSimStartDeadlineTask :: IsReadyToRun(int tick) const
+{
+    return pTask->IsReadyToRun(tick) && tick < deadline;
+}
+
+void ECSimStartDeadlineTask :: Run(int tick, int duration)
+{
+    if ( tick > deadline && start == -1)
+    {
+        abort = true;
+    }
+    else 
+    {
+        start = tick;
+        pTask->Run(tick, duration);
+    }
+}
+
+void ECSimStartDeadlineTask :: Wait(int tick, int duration)
+{
+    if ( tick > deadline && start == -1)
+    {
+        abort = true;
+    }
+    else 
+    {
+        pTask->Wait(tick, duration);
+    }
+}
+
 
 // your code here
 
@@ -103,14 +140,60 @@ ECSimEndDeadlineTask :: ECSimEndDeadlineTask(ECSimTask *pTask, int tmEndDeadline
 {
 }
 
+void ECSimEndDeadlineTask :: Run(int tick, int duration)
+{
+    if ( tick + duration > deadline )
+    {
+        abort = true;
+    }
+    else 
+    {
+        pTask->Run(tick, duration);
+    }
+}
+
 // your code here
 
 //***********************************************************
 // Composite task: contain multiple sub-tasks
-/*
+
 ECSimCompositeTask :: ECSimCompositeTask(const std::string &tidIn) 
 {
+    tid = tidIn;
 }
-*/
+
+std::string ECSimCompositeTask :: GetId() const
+{
+    return tid;
+}
+
+void ECSimCompositeTask :: AddSubtask(ECSimTask *pTask)
+{
+    subtasks.push_back(pTask);
+}
+
+bool ECSimCompositeTask :: IsReadyToRun(int tick) const
+{
+    for ( int i = 0; i < subtasks.size(); i++ )
+    {
+        if ( subtasks[i]->IsReadyToRun(tick) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ECSimCompositeTask :: IsFinished(int tick) const
+{
+    for ( int i = 0; i < subtasks.size(); i++ )
+    {
+        if ( subtasks[i]->IsFinished(tick) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 // your code here

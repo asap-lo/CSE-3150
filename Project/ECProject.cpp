@@ -1,12 +1,6 @@
 #include "ECProject.h"
 #include <string>
 
-// void ECTextCommand::Execute()
-// {
-//     //update model with key pressed
-// }
-
-
 /****************************************************
 
 ECModel --
@@ -117,6 +111,12 @@ void ECController::Update()
     }
     else if(key == BACKSPACE)
     {
+        if(cy != 0 && cx != 0)
+        {
+            bool lineDeleted = model->GetListRows()[cy]
+            ECRemoveCommand rem(model->GetListRows)
+            commandHistory->AddCommand()
+        }
         model->Backspace(cy, cx);
     }
     else if(key == ARROW_LEFT)
@@ -160,4 +160,28 @@ void ECView::UpdateView(vector<string> &listRows)
     {
         viewImp->AddRow(s);
     }
+}
+
+// Command pattern
+void ECAddCommand::Execute()
+{
+    //update model with key pressed
+    GetModel()->AddChar(GetKey(), GetLine(), GetPos());
+}
+void ECAddCommand::UnExecute()
+{
+    GetModel()->Backspace(GetLine(), GetPos() + 1);
+}
+
+
+void ECRemoveCommand::Execute()
+{
+    GetModel()->Backspace(GetLine(), GetPos());
+}
+void ECRemoveCommand::UnExecute()
+{
+    if(lineDeleted)
+        GetModel()->Return(GetLine(), GetPos());
+    else
+        GetModel()->AddChar(GetKey(), GetLine(), GetPos());
 }

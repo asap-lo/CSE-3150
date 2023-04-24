@@ -5,40 +5,8 @@
 
 using namespace  std;
 
-//ECCommand basic interface
-// class ECCommand
-// {
-// public:
-//     virtual ~ECCommand() = 0;
-//     virtual void Execute();
-//     virtual void UnExecute();
-// };
-// class ECTextCommand : ECCommand
-// {
-// public:
-//     ECTextCommand(string key, int line, int pos) 
-//     { 
-//         this->key = key; 
-//         this->line = line;
-//         this->pos = pos;
-//     };
-//     virtual void Execute();
-//     virtual void UnExecute();
-//     string GetKey() { return key; };
-//     int GetLine() { return line; };
-//     int GetPos() { return pos; };
 
-// private:
-//     string key;
-//     int line;
-//     int pos;
-// };
-// class ECAddCommand : public ECTextCommand
-// {
-// public:
-//     virtual void Execute();
-//     virtual void Unexecute();
-// };
+
 
 class ECView
 {
@@ -69,6 +37,7 @@ public:
     void AddChar(string c, int line, int pos);
     void Return(int line, int pos);
     void Backspace(int line, int pos);
+    vector<string> GetListRows() { return listRows; };
 private:
     vector<string> listRows;
     ECView *view;
@@ -78,10 +47,11 @@ private:
 class ECController : public ECObserver
 {
 public:
-    ECController(ECModel *model, ECTextViewImp *inputObserver) 
+    ECController(ECModel *model, ECTextViewImp *inputObserver, CommandHistory *commandHistory) 
     { 
         this->model = model;
         this->inputObserver = inputObserver;
+        this->commandHistory = commandHistory;
         inputObserver->Attach(this);
     };
     virtual void Update();
@@ -89,4 +59,65 @@ public:
 private:
     ECModel *model;
     ECTextViewImp *inputObserver;
+    CommandHistory *commandHistory;
+};
+
+
+// ECCommand basic interface
+class ECTextCommand
+{
+public:
+    ECTextCommand(string key, int line, int pos, ECModel *model) 
+    { 
+        this->key = key; 
+        this->line = line;
+        this->pos = pos;
+        this->model = model;
+    };
+    virtual void Execute();
+    virtual void UnExecute();
+    string GetKey() { return key; };
+    int GetLine() { return line; };
+    int GetPos() { return pos; };
+    ECModel *GetModel() { return model; };
+
+private:
+    ECModel *model;
+    string key;
+    int line;
+    int pos;
+};
+class ECAddCommand : public ECTextCommand
+{
+public:
+    ECAddCommand(string key, int line, int pos, ECModel *model) : ECTextCommand(key, line, pos, model) { };
+    virtual void Execute();
+    virtual void UnExecute();
+};
+class ECRemoveCommand : public ECTextCommand
+{
+public:
+    ECRemoveCommand(string key, int line, int pos, ECModel *model, bool lineDeleted) : ECTextCommand(key, line, pos, model), lineDeleted(lineDeleted) { };
+    virtual void Execute();
+    virtual void UnExecute();
+private:
+    bool lineDeleted;
+};
+class ECReturnCommand : public ECTextCommand
+{
+public:
+    ECReturnCommand(string key, int line, int pos, ECModel *model) : ECTextCommand(key, line, pos, model) { };
+    virtual void Execute();
+    virtual void UnExecute();
+};
+
+class CommandHistory
+{
+public:
+    int GetIndex();
+    ECTextCommand *GetCommand(int index);
+    void AddCommand(ECTextCommand command);
+private:
+    vector<ECTextCommand> commands;
+    int index;
 };

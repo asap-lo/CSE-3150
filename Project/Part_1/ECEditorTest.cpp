@@ -23,12 +23,13 @@ public:
 
     virtual void Update()
     {
-        if( pObsSubj->GetPressedKey() == ESC )
-        {
-            pObsSubj->InitRows();
-            pObsSubj->ClearColor();
-            pObsSubj->AddRow("John Lombardo");
-        }
+        // if( pObsSubj->GetPressedKey() == ESC )
+        // {
+        //     pObsSubj->InitRows();
+        //     pObsSubj->ClearColor();
+        //     pObsSubj->AddRow("John Lombardo");
+        // }
+        
     };
     
 private :

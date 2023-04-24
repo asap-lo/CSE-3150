@@ -152,7 +152,7 @@ public:
     // Call when you want to quit from the program
     void Quit();
     
-    // **********************Clear out the content of the screen
+    // Clear out the content of the screen
     // A view consists multiple number of rows, where the maximum number of rows is equal
     // to the number of rows in the window of the view, minus the number of status rows (by default, none)
     // You don't have to specify all rows; ECTextViewImp aautomatically fills the remaining rows

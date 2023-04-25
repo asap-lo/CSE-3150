@@ -6,7 +6,8 @@
 using namespace  std;
 
 
-
+class ECCommandHistory;
+class ECTextCommand;
 
 class ECView
 {
@@ -47,7 +48,7 @@ private:
 class ECController : public ECObserver
 {
 public:
-    ECController(ECModel *model, ECTextViewImp *inputObserver, CommandHistory *commandHistory) 
+    ECController(ECModel *model, ECTextViewImp *inputObserver, ECCommandHistory *commandHistory) 
     { 
         this->model = model;
         this->inputObserver = inputObserver;
@@ -59,7 +60,7 @@ public:
 private:
     ECModel *model;
     ECTextViewImp *inputObserver;
-    CommandHistory *commandHistory;
+    ECCommandHistory *commandHistory;
 };
 
 
@@ -74,8 +75,8 @@ public:
         this->pos = pos;
         this->model = model;
     };
-    virtual void Execute();
-    virtual void UnExecute();
+    virtual void Execute() = 0;
+    virtual void UnExecute() = 0;
     string GetKey() { return key; };
     int GetLine() { return line; };
     int GetPos() { return pos; };
@@ -111,13 +112,14 @@ public:
     virtual void UnExecute();
 };
 
-class CommandHistory
+class ECCommandHistory
 {
 public:
-    int GetIndex();
-    ECTextCommand *GetCommand(int index);
-    void AddCommand(ECTextCommand command);
+    ECCommandHistory() { index = 0; };
+    int GetIndex() { return index; };
+    //  ECTextCommand *GetCommand(int index) { return commands[index]; };
+    void AddCommand(ECTextCommand *command);
 private:
-    vector<ECTextCommand> commands;
+    vector<ECTextCommand *> commands;
     int index;
 };

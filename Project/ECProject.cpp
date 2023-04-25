@@ -65,7 +65,7 @@ void ECModel::MoveCursor(int dx, int dy)
     
     if(dx == 0)
     {
-        if(y >= 0 && y < size(listRows))
+        if(y >= 0 && y < listRows.size())
         {
             if(x > (int) listRows[y].size())
                 x = (int) listRows[y].size();
@@ -105,19 +105,28 @@ void ECController::Update()
     int cx = inputObserver->GetCursorX();
     int cy = inputObserver->GetCursorY();
     int key = inputObserver->GetPressedKey();
+    char ckey = inputObserver->GetPressedKey();
     if(key == ENTER)
     {
         model->Return(cy, cx);
     }
     else if(key == BACKSPACE)
     {
-        if(cy != 0 && cx != 0)
+        if(cy != 0 && cx == 0)
         {
-            bool lineDeleted = model->GetListRows()[cy]
-            ECRemoveCommand rem(model->GetListRows)
-            commandHistory->AddCommand()
+            string s = model->GetListRows()[cy];
+            ECRemoveCommand rem(s, cy, cx, model, true);
+            commandHistory->AddCommand(&rem);
+            //*****MAY NEED TO STORE NEW CURsOR POSITION, ignore for now ****
+            rem.Execute();
         }
-        model->Backspace(cy, cx);
+        else if(cx != 0)
+        {
+            string removed = model->GetListRows()[cy].substr(cx - 1, 1);
+            ECRemoveCommand rem(removed, cy, cx, model, false);
+            commandHistory->AddCommand(&rem);
+            rem.Execute();
+        }
     }
     else if(key == ARROW_LEFT)
     {   
@@ -137,8 +146,9 @@ void ECController::Update()
     }
     else
     {
-        char c = inputObserver->GetPressedKey();
-        model->AddChar(string(1, c), cy, cx);
+        ECAddCommand add(string(1, ckey), cy, cx, model);
+        commandHistory->AddCommand(&add);
+        add.Execute();
     }
     
 }
@@ -184,4 +194,17 @@ void ECRemoveCommand::UnExecute()
         GetModel()->Return(GetLine(), GetPos());
     else
         GetModel()->AddChar(GetKey(), GetLine(), GetPos());
+}
+
+
+/*
+Command History
+*/
+void ECCommandHistory::AddCommand(ECTextCommand *command)
+{
+    //remove trailing commands at index
+    commands.erase(commands.begin() + index, commands.end());
+    //add command to end of list
+    commands.push_back(command);
+    index++;
 }

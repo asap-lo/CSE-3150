@@ -6,7 +6,8 @@ int main(int argc, char*argv[])
     ECTextViewImp viewImp;
     ECView view(&viewImp);
     ECModel model(&view);
-    ECController controller(&model, &viewImp);
+    ECCommandHistory commandHistory;
+    ECController controller(&model, &viewImp, &commandHistory);
 
     viewImp.AddStatusRow("Testing Features...", ":)", true);
     viewImp.Show();

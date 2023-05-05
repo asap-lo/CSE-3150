@@ -16,77 +16,165 @@ ECModel --
 *****************************************************/
 
 // AddChar function adds a character at a given x, y coordinate
-void ECModel::AddChar(string c, int line, int pos)
+void ECModel::AddChar(string c)
 {
-    listRows[line].insert(pos, c);
-    view->UpdateView(listRows);
-    MoveCursor(1, 0);
+    //if(listRows.size() < view->GetRowNumInView())
+    //listRows[y].insert(x, to_string(y));
+    listRows[y].insert(x, c);
+    x += 1;
+    WriteToFile();
+    view->UpdateView(listRows, x, y);
+    
 }
 
 // Return function adds a new line or breaks a line in two given a x, y coordinate
-void ECModel::Return(int line, int pos)
+void ECModel::Return()
 {
     string rv = "";
-    rv = listRows[line].substr(pos, string::npos);
-    listRows[line] = listRows[line].substr(0, pos);
-    listRows.push_back(rv);
+    rv = listRows[y].substr(x, string::npos);
+    listRows[y] = listRows[y].substr(0, x);
+    listRows.insert(listRows.begin() + y + 1, rv);
 
     // Update view accordingly
-    view->UpdateView(listRows);
-    view->SetCursorPos(line + 1, 0);
+    x = 0;
+    y += 1;
+    
+    
+    view->UpdateView(listRows, x, y);
+    WriteToFile();
+    
 }
 
 // Backspace function removes a character to the left of the cursor given an x, y coordinate
-void ECModel::Backspace(int line, int pos)
+void ECModel::Backspace()
 {
     // If cursor is on the left side of the screen, delete line and append trailing characters to the previous line
-    if(pos == 0 && line > 0)
+    if(x == 0)
     {
-        string rem = listRows[line];
-        listRows.pop_back();
-        int i = (int) listRows.back().size();
-        listRows.back() += rem;
-        view->UpdateView(listRows);
-        view->SetCursorPos(line - 1, i);
+        if(y != 0)
+        {
+            string rv = listRows[y];
+            listRows.erase(listRows.begin() + y);
+            y -= 1;
+            x = listRows[y].size();
+            listRows[y] += rv;
+            view->UpdateView(listRows, x, y);
+        }
     }
-    else if(pos > 0)
+    else
     {
-        listRows[line].replace(pos - 1, 1, "");
-        view->UpdateView(listRows);
-        MoveCursor(-1, 0);
+        listRows[y].erase(x - 1, 1);
+        // listRows[y].erase(0, 1);
+        x -= 1;
+        view->UpdateView(listRows, x, y);
     }
+    WriteToFile();
 }
 
 // Given delta x and delta y, move cursor to desired position in the view
 void ECModel::MoveCursor(int dx, int dy)
 {
-    int x = view->GetCursorX() + dx;
-    int y = view->GetCursorY() + dy;
+    //positive dy is down positive dx is right
+    if(dx == -1)
+    {
+        x--;
+        if(x < 0)
+            if(y == 0)
+                x = 0;
+            else
+            {
+                y--;
+                x = listRows[y].size();
+            }
+    }
+    if(dx == 1)
+    {
+        x++;
+        if(x > listRows[y].size())
+            if(y == listRows.size() - 1)
+                x = listRows[y].size();
+            else
+            {
+                y++;
+                x = 0;
+            }
+    }
+    if(dy == -1)
+    {
+        if(x < view->GetColNumInView())
+        {
+            y--;
+            if(y < 0)
+            {
+                y = 0;
+                x = 0;
+            }
+            if(x > listRows[y].size())
+                x = listRows[y].size();
+        }
+        else
+        {
+            x -= view->GetColNumInView();
+            if(x < 0)
+            {
+                x = 0;
+                y--;
+            }
+            if(y < 0)
+                y = 0;
+        }
+    }
+    if(dy == 1)
+    {
+        if(listRows[y].size() < view->GetColNumInView())
+        {
+            y++;
+            if(y > listRows.size() - 1)
+            {
+                y = listRows.size() - 1;
+                x = listRows[y].size();
+            }
+            if(x > listRows[y].size())
+                x = listRows[y].size();
+        }
+        else
+        {
+            x += view->GetColNumInView();
+            if(x > listRows[y].size() - 1)
+            {
+                y++;
+                if(y > listRows.size() - 1)
+                {
+                    y = listRows.size() - 1;
+                    x = listRows[y].size();
+                }
+                else
+                {
+                    x = x / view->GetColNumInView();
+                    if(x > listRows[y].size())
+                        x = listRows[y].size();
+                }
+            }
+            // else
+            // {
+            //     x / view->GetColNumInView();
+            // }
+        }
+
+    }
     
-    if(dx == 0)
+    view->UpdateView(listRows, x, y);
+}
+
+void ECModel::WriteToFile()
+{
+    
+    outfile.open(filename, ofstream::out | ofstream::trunc);
+    for(auto s : listRows)
     {
-        if(y >= 0 && y < listRows.size())
-        {
-            if(x > (int) listRows[y].size())
-                x = (int) listRows[y].size();
-            view->SetCursorPos(y, x);
-        }
+        outfile << s << endl;
     }
-    else
-    {
-        if(x >= 0 && x <= listRows[y].size())
-        {
-            view->SetCursorPos(y, x);
-        }
-        else if(x < 0 && y - 1 >= 0)
-        {
-            view->SetCursorPos(y-1, (int) listRows[y-1].size());
-        }
-        else if(x > 0 && y + 1 < (int) listRows.size())
-        {
-            view->SetCursorPos(y+1, 0);
-        }
-    }
+    outfile.close();
 }
 
 
@@ -102,33 +190,48 @@ ECController --
 
 void ECController::Update()
 {
-    int cx = inputObserver->GetCursorX();
-    int cy = inputObserver->GetCursorY();
+    int cx = model->GetCursorX();
+    int cy = model->GetCursorY();
     int key = inputObserver->GetPressedKey();
     char ckey = inputObserver->GetPressedKey();
-    if(key == ENTER)
+    if(command)
     {
-        model->Return(cy, cx);
-    }
-    else if(key == BACKSPACE)
-    {
-        if(cy != 0 && cx == 0)
+        if(ckey == 'i')
         {
-            string s = model->GetListRows()[cy];
-            ECRemoveCommand rem(s, cy, cx, model, true);
-            commandHistory->AddCommand(&rem);
-            //*****MAY NEED TO STORE NEW CURsOR POSITION, ignore for now ****
-            rem.Execute();
-        }
-        else if(cx != 0)
-        {
-            string removed = model->GetListRows()[cy].substr(cx - 1, 1);
-            ECRemoveCommand rem(removed, cy, cx, model, false);
-            commandHistory->AddCommand(&rem);
-            rem.Execute();
+            command = false;
+            inputObserver->ClearStatusRows();
+            inputObserver->AddStatusRow("****INSERT MODE****", "Press ESC for command mode", true);
         }
     }
-    else if(key == ARROW_LEFT)
+    else
+    {
+        if(key == ENTER)
+        {
+            model->Return();
+        }
+        else if(key == BACKSPACE)
+        {
+            if(cy != 0 && cx == 0)
+            {
+                string s = "";
+                ECRemoveCommand rem(s, model, true);
+                commandHistory->AddCommand(&rem);
+                rem.Execute();
+            }
+            else if(cx != 0)
+            {
+                string removed = model->GetListRows()[cy].substr(cx - 1, 1);
+                ECRemoveCommand rem(removed, model, false);
+                commandHistory->AddCommand(&rem);
+                rem.Execute();
+            }
+        }
+        else if(key == CTRL_A || key == ESC)
+        {
+            command = true;
+        }
+    }
+    if(key == ARROW_LEFT)
     {   
         model->MoveCursor(-1, 0);
     }
@@ -144,12 +247,13 @@ void ECController::Update()
     {
         model->MoveCursor(0, 1);
     }
-    else
+    else if(!command)
     {
-        ECAddCommand add(string(1, ckey), cy, cx, model);
+        ECAddCommand add(string(1, ckey), model);
         commandHistory->AddCommand(&add);
         add.Execute();
     }
+    
     
 }
 
@@ -163,37 +267,95 @@ ECView --
 
 *****************************************************/
 
-void ECView::UpdateView(vector<string> &listRows)
+void ECView::UpdateView(vector<string> &listRows, int x, int y)
 {
     viewImp->InitRows();
-    for(auto s : listRows)
+    int originalY = y;
+    int rowsAdded = 0;
+    bool flag = true;
+    
+    vector<string> temp = listRows;
+    for(int i = 0; i < (int) temp.size(); i++)
     {
-        viewImp->AddRow(s);
+        if(temp[i].size() > viewImp->GetColNumInView())
+        {
+            for(int j = 0; j < (int) temp[i].size(); j += viewImp->GetColNumInView())
+            {
+                viewImp->AddRow(temp[i].substr(j, viewImp->GetColNumInView()));
+                
+                if(temp[i].substr(j, viewImp->GetColNumInView()).size() < viewImp->GetColNumInView() && i == originalY)
+                    flag = false;
+                else if(flag)
+                    rowsAdded++;
+                
+                
+            }
+            
+        }
+        else
+        {
+            if(i >= originalY)
+                flag = false;
+            viewImp->AddRow(temp[i]);
+        }
     }
+
+    y += rowsAdded;
+    if(x > viewImp->GetColNumInView())
+    {
+        x = x % (viewImp->GetColNumInView());
+    }
+    if(temp[y].size() < viewImp->GetColNumInView() && rowsAdded > 0)
+    {
+        y--;
+    }
+    
+    //handle case where x == 0
+    
+
+    // try
+    // {
+    //     SetCursorPos(y, x);
+    // }
+    // catch(const std::exception& e)
+    // {
+    //     std::cerr << e.what() << '\n';
+    // }
+    
+    SetCursorPos(y, x);
+    
+}
+
+void ECView::SetCursorPos(int line, int pos)
+{
+    viewImp->SetCursorY(line);
+    viewImp->SetCursorX(pos);
 }
 
 // Command pattern
 void ECAddCommand::Execute()
 {
     //update model with key pressed
-    GetModel()->AddChar(GetKey(), GetLine(), GetPos());
+    GetModel()->AddChar(GetKey());
 }
 void ECAddCommand::UnExecute()
 {
-    GetModel()->Backspace(GetLine(), GetPos() + 1);
+    GetModel()->Backspace();
 }
 
 
 void ECRemoveCommand::Execute()
 {
-    GetModel()->Backspace(GetLine(), GetPos());
+    GetModel()->Backspace();
+    //if(lineDeleted)
+    //    SetCoordinates(GetModel()->GetCursorY(), GetModel()->GetCursorX());
 }
 void ECRemoveCommand::UnExecute()
 {
     if(lineDeleted)
-        GetModel()->Return(GetLine(), GetPos());
+        GetModel()->Return();
     else
-        GetModel()->AddChar(GetKey(), GetLine(), GetPos());
+        GetModel()->AddChar(GetKey());
 }
 
 

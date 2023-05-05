@@ -1,4 +1,5 @@
 #include "ECTextViewImp.h"
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -13,14 +14,12 @@ class ECView
 {
 public:
     ECView(ECTextViewImp *viewImp) { this->viewImp = viewImp; };
-    void UpdateView(vector<string> &listRows);
-    void SetCursorPos(int line, int pos) 
-    { 
-        viewImp->SetCursorY(line);
-        viewImp->SetCursorX(pos);    
-    };
+    void UpdateView(vector<string> &listRows, int x, int y);
+    void SetCursorPos(int line, int pos);
     int GetCursorX() { return viewImp->GetCursorX(); };
     int GetCursorY() { return viewImp->GetCursorY(); };
+    int GetColNumInView() { return viewImp->GetColNumInView(); };
+    int GetRowNumInView() { return viewImp->GetRowNumInView(); };
 
 private:
     ECTextViewImp *viewImp;
@@ -29,19 +28,42 @@ private:
 class ECModel
 {
 public:
-    ECModel(ECView *view) 
+    ECModel(ECView *view, string filename) 
     { 
         this->view = view; 
-        listRows.push_back(""); 
+        this->filename = filename;
+        
+        file.open(filename);
+        //outfile.open(filename);
+        //add every line of file to listrows
+        string line;
+        
+        while(getline(file, line))
+        {
+            if(listRows.size() < view->GetRowNumInView())
+                listRows.push_back(line);
+        }
+        file.close();
+        view->UpdateView(listRows, 0, 0);
+        x = 0;
+        y = 0;
     };
     void MoveCursor(int dx, int dy);
-    void AddChar(string c, int line, int pos);
-    void Return(int line, int pos);
-    void Backspace(int line, int pos);
+    void AddChar(string c);
+    void Return();
+    void Backspace();
+    int GetCursorX() { return x; };
+    int GetCursorY() { return y; };
+    void WriteToFile();
     vector<string> GetListRows() { return listRows; };
 private:
     vector<string> listRows;
+    ifstream file;
+    ofstream outfile;
+    string filename;
     ECView *view;
+    int x;
+    int y;
 };
 
 
@@ -59,6 +81,7 @@ public:
 
 private:
     ECModel *model;
+    bool command = true;
     ECTextViewImp *inputObserver;
     ECCommandHistory *commandHistory;
 };
@@ -68,37 +91,31 @@ private:
 class ECTextCommand
 {
 public:
-    ECTextCommand(string key, int line, int pos, ECModel *model) 
+    ECTextCommand(string key, ECModel *model) 
     { 
         this->key = key; 
-        this->line = line;
-        this->pos = pos;
         this->model = model;
     };
     virtual void Execute() = 0;
     virtual void UnExecute() = 0;
     string GetKey() { return key; };
-    int GetLine() { return line; };
-    int GetPos() { return pos; };
     ECModel *GetModel() { return model; };
 
 private:
     ECModel *model;
     string key;
-    int line;
-    int pos;
 };
 class ECAddCommand : public ECTextCommand
 {
 public:
-    ECAddCommand(string key, int line, int pos, ECModel *model) : ECTextCommand(key, line, pos, model) { };
+    ECAddCommand(string key, ECModel *model) : ECTextCommand(key, model) { };
     virtual void Execute();
     virtual void UnExecute();
 };
 class ECRemoveCommand : public ECTextCommand
 {
 public:
-    ECRemoveCommand(string key, int line, int pos, ECModel *model, bool lineDeleted) : ECTextCommand(key, line, pos, model), lineDeleted(lineDeleted) { };
+    ECRemoveCommand(string key, ECModel *model, bool lineDeleted) : ECTextCommand(key, model), lineDeleted(lineDeleted) { };
     virtual void Execute();
     virtual void UnExecute();
 private:
@@ -107,7 +124,7 @@ private:
 class ECReturnCommand : public ECTextCommand
 {
 public:
-    ECReturnCommand(string key, int line, int pos, ECModel *model) : ECTextCommand(key, line, pos, model) { };
+    ECReturnCommand(string key, ECModel *model) : ECTextCommand(key, model) { };
     virtual void Execute();
     virtual void UnExecute();
 };

@@ -1,4 +1,5 @@
 #include "ECTextViewImp.h"
+#include "ECView.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -12,11 +13,7 @@ using namespace  std;
 class ECModel
 {
 public:
-    ECModel(ECview *view, string filename)
-    {
-        this->view = view;
-        this->file(filename);
-    }
+    ECModel(ECView *view, string filename);
     void MoveCursor(int dx, int dy);
     void AddChar(string c, int x, int y);
     void Backspace(int x, int y);

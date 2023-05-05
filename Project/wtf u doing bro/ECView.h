@@ -13,7 +13,11 @@ class ECView
 public:
     ECView(ECTextViewImp *viewImp) { this->viewImp = viewImp; };
 
-    UpdateView(vector<string> &listRows);
+    void UpdateView(vector<string> &listRows, int x, int y);
+    int GetWindowSize() { return viewImp->GetColNumInView(); };
 
+private:
+    ECTextViewImp *viewImp;
 };
 
+#endif

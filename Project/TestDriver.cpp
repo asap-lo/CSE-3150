@@ -9,7 +9,7 @@ int main(int argc, char*argv[])
     ECCommandHistory commandHistory;
     ECController controller(&model, &viewImp, &commandHistory);
 
-    viewImp.AddStatusRow("****Command Mode****", ":)", true);
+    viewImp.AddStatusRow("****COMMAND MODE****", "Press i for insert mode", true);
     viewImp.Show();
 
     return 0;

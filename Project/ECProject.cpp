@@ -22,7 +22,6 @@ void ECModel::AddChar(string c)
     //listRows[y].insert(x, to_string(y));
     listRows[y].insert(x, c);
     x += 1;
-    WriteToFile();
     view->UpdateView(listRows, x, y);
     
 }
@@ -41,7 +40,6 @@ void ECModel::Return()
     
     
     view->UpdateView(listRows, x, y);
-    WriteToFile();
     
 }
 
@@ -68,7 +66,6 @@ void ECModel::Backspace()
         x -= 1;
         view->UpdateView(listRows, x, y);
     }
-    WriteToFile();
 }
 
 // Given delta x and delta y, move cursor to desired position in the view
@@ -166,6 +163,19 @@ void ECModel::MoveCursor(int dx, int dy)
     view->UpdateView(listRows, x, y);
 }
 
+void ECModel::LoadFile()
+{
+    listRows.clear();
+    file.open(filename);
+    string line;
+    while(getline(file, line))
+    {
+        listRows.push_back(line);
+    }
+    file.close();
+    view->UpdateView(listRows, x, y);
+}
+
 void ECModel::WriteToFile()
 {
     
@@ -175,6 +185,7 @@ void ECModel::WriteToFile()
         outfile << s << endl;
     }
     outfile.close();
+    view->UpdateView(listRows, x, y);
 }
 
 
@@ -194,6 +205,10 @@ void ECController::Update()
     int cy = model->GetCursorY();
     int key = inputObserver->GetPressedKey();
     char ckey = inputObserver->GetPressedKey();
+    if(key == CTRL_Q)
+    {
+        model->WriteToFile();
+    }
     if(command)
     {
         if(ckey == 'i')
@@ -201,6 +216,17 @@ void ECController::Update()
             command = false;
             inputObserver->ClearStatusRows();
             inputObserver->AddStatusRow("****INSERT MODE****", "Press ESC for command mode", true);
+            model->WriteToFile();
+        }
+        else if(key == CTRL_Z)
+        {
+            commandHistory->SetTemp(model->GetListRows());
+            commandHistory->UndoAll();
+            
+        }
+        else if(key == CTRL_Y)
+        {
+            commandHistory->RedoAll();
         }
     }
     else
@@ -229,30 +255,34 @@ void ECController::Update()
         else if(key == CTRL_A || key == ESC)
         {
             command = true;
+            inputObserver->ClearStatusRows();
+            inputObserver->AddStatusRow("****COMMAND MODE****", "Press i for insert mode", true);
+        }
+        else if(key == ARROW_LEFT)
+        {   
+            model->MoveCursor(-1, 0);
+        }
+        else if(key == ARROW_RIGHT)
+        {
+            model->MoveCursor(1, 0);
+        }
+        else if(key == ARROW_UP)
+        {
+            model->MoveCursor(0, -1);
+        }
+        else if(key == ARROW_DOWN)
+        {
+            model->MoveCursor(0, 1);
+        }
+        else if(!command)
+        {
+            ECAddCommand add(string(1, ckey), model);
+            commandHistory->AddCommand(&add);
+            add.Execute();
         }
     }
-    if(key == ARROW_LEFT)
-    {   
-        model->MoveCursor(-1, 0);
-    }
-    else if(key == ARROW_RIGHT)
-    {
-        model->MoveCursor(1, 0);
-    }
-    else if(key == ARROW_UP)
-    {
-        model->MoveCursor(0, -1);
-    }
-    else if(key == ARROW_DOWN)
-    {
-        model->MoveCursor(0, 1);
-    }
-    else if(!command)
-    {
-        ECAddCommand add(string(1, ckey), model);
-        commandHistory->AddCommand(&add);
-        add.Execute();
-    }
+    
+    
     
     
 }
@@ -358,6 +388,15 @@ void ECRemoveCommand::UnExecute()
         GetModel()->AddChar(GetKey());
 }
 
+void ECReturnCommand::Execute()
+{
+    GetModel()->Return();
+}
+void ECReturnCommand::UnExecute()
+{
+    GetModel()->Backspace();
+}
+
 
 /*
 Command History
@@ -369,4 +408,17 @@ void ECCommandHistory::AddCommand(ECTextCommand *command)
     //add command to end of list
     commands.push_back(command);
     index++;
+}
+
+void ECCommandHistory::UndoAll()
+{
+
+}
+
+void ECCommandHistory::RedoAll()
+{
+    for(index; index < commands.size(); index++)
+    {
+        commands[index]->Execute();
+    }
 }

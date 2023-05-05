@@ -20,7 +20,6 @@ public:
     int GetCursorY() { return viewImp->GetCursorY(); };
     int GetColNumInView() { return viewImp->GetColNumInView(); };
     int GetRowNumInView() { return viewImp->GetRowNumInView(); };
-
 private:
     ECTextViewImp *viewImp;
 };
@@ -48,6 +47,7 @@ public:
         x = 0;
         y = 0;
     };
+    void LoadFile();
     void MoveCursor(int dx, int dy);
     void AddChar(string c);
     void Return();
@@ -136,7 +136,12 @@ public:
     int GetIndex() { return index; };
     //  ECTextCommand *GetCommand(int index) { return commands[index]; };
     void AddCommand(ECTextCommand *command);
+    void UndoAll();
+    void RedoAll();
+    void ClearCommands() { commands.clear(); };
+    void SetTemp(vector<string> temp) { this->temp = temp; };
 private:
     vector<ECTextCommand *> commands;
     int index;
+    vector<string> temp;
 };

@@ -13,7 +13,17 @@ class ECTextCommand;
 class ECView
 {
 public:
-    ECView(ECTextViewImp *viewImp) { this->viewImp = viewImp; };
+    ECView(ECTextViewImp *viewImp) 
+    { 
+        this->viewImp = viewImp; 
+        keywordFile.open("keywords.txt");
+        string line;
+        while(getline(keywordFile, line))
+        {
+            keywords.push_back(line);
+        }
+        keywordFile.close();
+    };
     void UpdateView(vector<string> &listRows, int x, int y);
     void SetCursorPos(int line, int pos);
     int GetCursorX() { return viewImp->GetCursorX(); };
@@ -22,6 +32,8 @@ public:
     int GetRowNumInView() { return viewImp->GetRowNumInView(); };
 private:
     ECTextViewImp *viewImp;
+    ifstream keywordFile;
+    vector<string> keywords;
 };
 
 class ECModel
@@ -56,6 +68,11 @@ public:
     int GetCursorY() { return y; };
     void WriteToFile();
     vector<string> GetListRows() { return listRows; };
+    void SetListRows(vector<string> temp) 
+    {
+        listRows = temp;
+        view->UpdateView(listRows, 0, y);
+    };
 private:
     vector<string> listRows;
     ifstream file;
@@ -136,8 +153,8 @@ public:
     int GetIndex() { return index; };
     //  ECTextCommand *GetCommand(int index) { return commands[index]; };
     void AddCommand(ECTextCommand *command);
-    void UndoAll();
-    void RedoAll();
+    void UndoAll(ECModel *model);
+    void RedoAll(ECModel *model);
     void ClearCommands() { commands.clear(); };
     void SetTemp(vector<string> temp) { this->temp = temp; };
 private:

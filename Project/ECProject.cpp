@@ -221,12 +221,12 @@ void ECController::Update()
         else if(key == CTRL_Z)
         {
             commandHistory->SetTemp(model->GetListRows());
-            commandHistory->UndoAll();
+            commandHistory->UndoAll(model);
             
         }
         else if(key == CTRL_Y)
         {
-            commandHistory->RedoAll();
+            commandHistory->RedoAll(model);
         }
     }
     else
@@ -300,24 +300,26 @@ ECView --
 void ECView::UpdateView(vector<string> &listRows, int x, int y)
 {
     viewImp->InitRows();
+    viewImp->ClearColor();
     int originalY = y;
     int rowsAdded = 0;
     bool flag = true;
     
-    vector<string> temp = listRows;
-    for(int i = 0; i < (int) temp.size(); i++)
+    vector<string> temp;
+    for(int i = 0; i < (int) listRows.size(); i++)
     {
-        if(temp[i].size() > viewImp->GetColNumInView())
+        if(listRows[i].size() > viewImp->GetColNumInView())
         {
-            for(int j = 0; j < (int) temp[i].size(); j += viewImp->GetColNumInView())
+            for(int j = 0; j < (int) listRows[i].size(); j += viewImp->GetColNumInView())
             {
-                viewImp->AddRow(temp[i].substr(j, viewImp->GetColNumInView()));
-                
-                if(temp[i].substr(j, viewImp->GetColNumInView()).size() < viewImp->GetColNumInView() && i == originalY)
+                string s = listRows[i].substr(j, viewImp->GetColNumInView());
+                viewImp->AddRow(s);
+                temp.push_back(s);
+                // iterate through all words in the row added and if they match a word in the keyword vector, highlight them
+                if(s.size() < viewImp->GetColNumInView() && i == originalY)
                     flag = false;
                 else if(flag)
                     rowsAdded++;
-                
                 
             }
             
@@ -326,16 +328,46 @@ void ECView::UpdateView(vector<string> &listRows, int x, int y)
         {
             if(i >= originalY)
                 flag = false;
-            viewImp->AddRow(temp[i]);
+            viewImp->AddRow(listRows[i]);
+            temp.push_back(listRows[i]);
         }
+        
     }
-
+    //KEY WORD HIGHLIGHTING.. Basically just iterates through the rows on screen
+    // and checks if any of the words match a keyword. If they do, it highlights them
+    for(int i = 0; i < (int) temp.size(); i++)
+    {   
+        
+        string s = temp[i];
+        string word = "";
+        for (int g = 0; g < s.size(); g++)
+        {
+        //    cout << "hi" <<endl;
+            if (s[g] == ' ')
+            {
+                for(auto s : keywords)
+                {
+                    if(word == s)
+                    {
+                        viewImp->SetColor(i, g - word.size(), g - 1, TEXT_COLOR_RED);
+                    }
+                }
+                word = "";
+            }
+            else {
+                word = word + s[g];
+            }
+        }
+        
+        
+    }
+    
     y += rowsAdded;
     if(x > viewImp->GetColNumInView())
     {
         x = x % (viewImp->GetColNumInView());
     }
-    if(temp[y].size() < viewImp->GetColNumInView() && rowsAdded > 0)
+    if(listRows[y].size() < viewImp->GetColNumInView() && rowsAdded > 0)
     {
         y--;
     }
@@ -410,15 +442,15 @@ void ECCommandHistory::AddCommand(ECTextCommand *command)
     index++;
 }
 
-void ECCommandHistory::UndoAll()
+void ECCommandHistory::UndoAll(ECModel *model)
 {
-
+    // save previous listRows into temp
+    temp = model->GetListRows();
+    // Undo all commands since last file save by reverting to data in the file
+    model->LoadFile();
 }
 
-void ECCommandHistory::RedoAll()
+void ECCommandHistory::RedoAll(ECModel *model)
 {
-    for(index; index < commands.size(); index++)
-    {
-        commands[index]->Execute();
-    }
+    model->SetListRows(temp);
 }

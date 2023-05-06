@@ -1,3 +1,4 @@
-myoscopy
-hi
-hello
+CSE
+3150
+CSE3150
+project

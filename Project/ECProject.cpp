@@ -205,10 +205,6 @@ void ECController::Update()
     int cy = model->GetCursorY();
     int key = inputObserver->GetPressedKey();
     char ckey = inputObserver->GetPressedKey();
-    if(key == CTRL_Q)
-    {
-        model->WriteToFile();
-    }
     if(command)
     {
         if(ckey == 'i')
@@ -216,11 +212,10 @@ void ECController::Update()
             command = false;
             inputObserver->ClearStatusRows();
             inputObserver->AddStatusRow("****INSERT MODE****", "Press ESC for command mode", true);
-            model->WriteToFile();
+            commandHistory->SetTemp(model->GetListRows());
         }
         else if(key == CTRL_Z)
         {
-            commandHistory->SetTemp(model->GetListRows());
             commandHistory->UndoAll(model);
             
         }
@@ -282,7 +277,7 @@ void ECController::Update()
         }
     }
     
-    
+    model->WriteToFile();
     
     
 }
@@ -328,7 +323,8 @@ void ECView::UpdateView(vector<string> &listRows, int x, int y)
         {
             if(i >= originalY)
                 flag = false;
-            viewImp->AddRow(listRows[i]);
+            if(i + rowsAdded < viewImp->GetRowNumInView())
+                viewImp->AddRow(listRows[i]);
             temp.push_back(listRows[i]);
         }
         
@@ -342,7 +338,6 @@ void ECView::UpdateView(vector<string> &listRows, int x, int y)
         string word = "";
         for (int g = 0; g < s.size(); g++)
         {
-        //    cout << "hi" <<endl;
             if (s[g] == ' ')
             {
                 for(auto s : keywords)
@@ -358,10 +353,7 @@ void ECView::UpdateView(vector<string> &listRows, int x, int y)
                 word = word + s[g];
             }
         }
-        
-        
     }
-    
     y += rowsAdded;
     if(x > viewImp->GetColNumInView())
     {
@@ -445,12 +437,15 @@ void ECCommandHistory::AddCommand(ECTextCommand *command)
 void ECCommandHistory::UndoAll(ECModel *model)
 {
     // save previous listRows into temp
-    temp = model->GetListRows();
+    vector<string> temp2 = model->GetListRows();
     // Undo all commands since last file save by reverting to data in the file
-    model->LoadFile();
+    model->SetListRows(temp);
+    temp = temp2;
 }
 
 void ECCommandHistory::RedoAll(ECModel *model)
 {
+    vector<string> temp2 = model->GetListRows();
     model->SetListRows(temp);
+    temp = temp2;
 }

@@ -16,13 +16,22 @@ public:
     ECView(ECTextViewImp *viewImp) 
     { 
         this->viewImp = viewImp; 
-        keywordFile.open("keywords.txt");
-        string line;
-        while(getline(keywordFile, line))
+        try
         {
-            keywords.push_back(line);
+            keywordFile.open("keywords.txt");
+            string line;
+            while(getline(keywordFile, line))
+            {
+                keywords.push_back(line);
+            }
+            keywordFile.close();
         }
-        keywordFile.close();
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        
+        
     };
     void UpdateView(vector<string> &listRows, int x, int y);
     void SetCursorPos(int line, int pos);
@@ -43,17 +52,27 @@ public:
     { 
         this->view = view; 
         this->filename = filename;
-        
-        file.open(filename);
+        ofstream newFile(filename, ios::app);
+        newFile << "";
+        listRows.push_back("");
+        try
+        {
+            file.open(filename);
+            string line;
+            while(getline(file, line))
+            {
+                listRows.push_back(line);
+            }
+            file.close();
+        }
+        catch(const std::exception e)
+        {
+            cout << e.what() << endl;
+            
+        }
         //outfile.open(filename);
         //add every line of file to listrows
-        string line;
-        
-        while(getline(file, line))
-        {
-            if(listRows.size() < view->GetRowNumInView())
-                listRows.push_back(line);
-        }
+        newFile.close();
         file.close();
         view->UpdateView(listRows, 0, 0);
         x = 0;
